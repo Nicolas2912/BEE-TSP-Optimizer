@@ -3,13 +3,14 @@ import random
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import time
+from tqdm import tqdm
 
 random.seed(42)
 
 
 class BeeTSP:
 
-    def __init__(self, bees_scout: int, max_iter: int, n_cities: int, ne: int, nb: int, nrb: int,
+    def __init__(self, ns: int, max_iter: int, n_cities: int, ne: int, nb: int, nrb: int,
                  nre: int):
         self.max_iter = max_iter
         self.n_cities = n_cities
@@ -21,9 +22,9 @@ class BeeTSP:
         self.nre = nre
 
         # init scout bees
-        self.bees_scout = [self.init_random_route() for _ in range(bees_scout)]
+        self.ns = [self.init_random_route() for _ in range(ns)]
 
-        self.route_fitness_dict = {str(route): self.get_distance(route) for route in self.bees_scout}
+        self.route_fitness_dict = {str(route): self.get_distance(route) for route in self.ns}
 
         # sorty by value ascending
         self.route_fitness_dict = dict(sorted(self.route_fitness_dict.items(), key=lambda item: item[1]))
@@ -37,14 +38,6 @@ class BeeTSP:
 
         self.nb = [eval(route) for route in self.nb]
         self.ne = [eval(route) for route in self.ne]
-
-        self.fitness = self.get_distance(self.best_route)
-
-        print(f"route fitness dict: {self.route_fitness_dict}")
-        print(f"bees scout: {self.bees_scout}")
-        print(f"nb: {self.nb}")
-        print(f"ne: {self.ne}")
-        print(f"fitness: {self.fitness}")
 
     def init_random_route(self):
         route = list(range(self.n_cities))
@@ -64,16 +57,6 @@ class BeeTSP:
                     distances[i][j] = 0
 
         return distances
-
-    def scout_bees_phase(self):
-        # for _ in range(self.bees_scout):
-        #     new_route = self.init_random_route()
-        #     new_distance = self.get_distance(new_route)
-        #
-        #     if self.best_distance is None or new_distance < self.best_distance:
-        #         self.best_route = new_route
-        #         self.best_distance = new_distance
-        pass
 
     def get_distance(self, route):
         # route = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0]
@@ -121,8 +104,13 @@ class BeeTSP:
                     self.best_route = new_route
                     self.best_distance = self.get_distance(new_route)
 
-                    scout_bee = random.randint(0, len(self.bees_scout) - 1)
-                    self.bees_scout[scout_bee] = new_route
+                    # get largest route in ns
+                    largest_route = max(self.ns, key=lambda x: self.get_distance(x))
+
+                    # get index of largest route in ns
+                    largest_route_index = self.ns.index(largest_route)
+
+                    self.ns[largest_route_index] = new_route
 
     def two_edge_exchange(self, route):
         i, j = random.sample(range(1, len(route) - 1), 2)
@@ -140,68 +128,113 @@ class BeeTSP:
                     self.best_route = new_route
                     self.best_distance = self.get_distance(new_route)
 
-                    scout_bee = random.randint(0, len(self.bees_scout) - 1)
-                    self.bees_scout[scout_bee] = new_route
+                    # get largest route in ns
+                    largest_route = max(self.ns, key=lambda x: self.get_distance(x))
 
-    def fit(self):
-        fig, axs = plt.subplots(1, 2, figsize=(12, 9))
-        distances = []
-        best_route_line, = axs[1].plot([], [], 'k-')
+                    # get index of largest route in ns
+                    largest_route_index = self.ns.index(largest_route)
 
-        def update_plot(frame):
-            axs[0].clear()
-            axs[1].clear()
+                    self.ns[largest_route_index] = new_route
 
-            # Local Search Phase
-            self.local_search()
+    def fit(self, plot=True):
+        if plot:
 
-            # Global Search Phase
-            self.global_search()
+            fig, axs = plt.subplots(1, 2, figsize=(12, 9)) if plot else (None, None)
+            distances = []
+            best_route_line, = axs[1].plot([], [], 'k-') if plot else (None,)
 
-            ns_minus_nb = len(self.bees_scout) - len(self.nb)
-            ns_minus_nb_random = [self.init_random_route() for _ in range(ns_minus_nb)]
-            ns_minus_nb_random_dict = {str(route): self.get_distance(route) for route in ns_minus_nb_random}
-            ns_minus_nb_random_dict = dict(sorted(ns_minus_nb_random_dict.items(), key=lambda item: item[1]))
+            def update_plot(frame):
+                axs[0].clear() if plot else None
+                axs[1].clear() if plot else None
 
-            self.nb = list(ns_minus_nb_random_dict.keys())[:len(self.nb)]
-            self.ne = list(ns_minus_nb_random_dict.keys())[:len(self.ne)]
+                # Local Search Phase
+                self.local_search()
 
-            self.nb = [eval(route) for route in self.nb]
-            self.ne = [eval(route) for route in self.ne]
+                # Global Search Phase
+                self.global_search()
 
-            distances.append(self.best_distance)
+                ns_minus_nb = len(self.ns) - len(self.nb)
+                ns_minus_nb_random = [self.init_random_route() for _ in range(ns_minus_nb)]
+                ns_minus_nb_random_dict = {str(route): self.get_distance(route) for route in ns_minus_nb_random}
+                ns_minus_nb_random_dict = dict(sorted(ns_minus_nb_random_dict.items(), key=lambda item: item[1]))
 
-            # Plot the best distance
-            axs[0].plot(range(1, frame + 2), distances[:frame + 1])
-            axs[0].set_xlabel('Iteration')
-            axs[0].set_ylabel('Best Distance')
-            axs[0].set_title('Best Distance over Iterations')
+                self.nb = list(ns_minus_nb_random_dict.keys())[:len(self.nb)]
+                self.ne = list(ns_minus_nb_random_dict.keys())[:len(self.ne)]
 
-            # Plot the best route
-            best_route_coords = np.array([self.cities[i, :] for i in self.best_route])
-            best_route_line.set_data(best_route_coords[:, 0], best_route_coords[:, 1])
-            axs[1].plot(best_route_coords[:, 0], best_route_coords[:, 1], 'k-')
-            axs[1].scatter(best_route_coords[:, 0], best_route_coords[:, 1], s=100, c='red')
-            axs[1].set_xlabel('X')
-            axs[1].set_ylabel('Y')
-            axs[1].set_title('Best Route')
+                self.nb = [eval(route) for route in self.nb]
+                self.ne = [eval(route) for route in self.ne]
 
-        ani = animation.FuncAnimation(fig, update_plot, frames=self.max_iter, repeat=False, interval=10)
-        plt.show()
+                # update best route and best distance
+                for route in self.ns:
+                    if self.get_distance(route) < self.best_distance:
+                        self.best_route = route
+                        self.best_distance = self.get_distance(route)
 
-        # Output the final best route
-        print(f"Best Route: {self.best_route}")
-        print(f"Best Distance: {self.best_distance}")
+                distances.append(self.best_distance)
+
+                # Plot the best distance
+                axs[0].plot(range(1, frame + 2), distances[:frame + 1]) if plot else None
+                axs[0].set_xlabel('Iteration') if plot else None
+                axs[0].set_ylabel('Best Distance') if plot else None
+                axs[0].set_title('Best Distance over Iterations') if plot else None
+
+                # Plot the best route
+                if plot:
+                    best_route_coords = np.array([self.cities[i, :] for i in self.best_route])
+                    best_route_line.set_data(best_route_coords[:, 0], best_route_coords[:, 1])
+                    axs[1].plot(best_route_coords[:, 0], best_route_coords[:, 1], 'k-')
+                    axs[1].scatter(best_route_coords[:, 0], best_route_coords[:, 1], s=100, c='red')
+                    axs[1].set_xlabel('X')
+                    axs[1].set_ylabel('Y')
+                    axs[1].set_title('Best Route')
+
+            ani = animation.FuncAnimation(fig, update_plot, frames=self.max_iter, repeat=False,
+                                          interval=1) if plot else None
+            plt.show() if plot else None
+
+            # Output the final best route
+            print(f"Best Route: {self.best_route}")
+            print(f"Best Distance: {self.best_distance}")
+
+        else:
+            for _ in tqdm(range(self.max_iter)):
+                # Local Search Phase
+                self.local_search()
+
+                # Global Search Phase
+                self.global_search()
+
+                ns_minus_nb = len(self.ns) - len(self.nb)
+                ns_minus_nb_random = [self.init_random_route() for _ in range(ns_minus_nb)]
+                ns_minus_nb_random_dict = {str(route): self.get_distance(route) for route in ns_minus_nb_random}
+                ns_minus_nb_random_dict = dict(sorted(ns_minus_nb_random_dict.items(), key=lambda item: item[1]))
+
+                self.nb = list(ns_minus_nb_random_dict.keys())[:len(self.nb)]
+                self.ne = list(ns_minus_nb_random_dict.keys())[:len(self.ne)]
+
+                self.nb = [eval(route) for route in self.nb]
+                self.ne = [eval(route) for route in self.ne]
+
+                # update best route and best distance
+                for route in self.ns:
+                    if self.get_distance(route) < self.best_distance:
+                        self.best_route = route
+                        self.best_distance = self.get_distance(route)
+
+            # Output the final best route
+            print(f"Best Route: {self.best_route}")
+            print(f"Best Distance: {self.best_distance}")
+
 
 
 if __name__ == '__main__':
-    bees_scout = 18
-    max_iter = 100000
+    ns = 500
+    max_iter = 10000
     n_cities = 20
-    nb = 10
-    ne = 3
-    nrb = 10
-    nre = 15
+    nb = 200
+    ne = 40
+    nrb = 50
+    nre = 100
 
-    bee_tsp = BeeTSP(bees_scout, max_iter, n_cities, nb, ne, nrb, nre)
-    bee_tsp.fit()
+    bee_tsp = BeeTSP(ns, max_iter, n_cities, nb, ne, nrb, nre)
+    bee_tsp.fit(False)
