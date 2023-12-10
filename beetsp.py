@@ -4,6 +4,8 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import time
 from tqdm import tqdm
+import itertools
+
 
 random.seed(42)
 
@@ -39,6 +41,11 @@ class BeeTSP:
         self.nb = [eval(route) for route in self.nb]
         self.ne = [eval(route) for route in self.ne]
 
+        self.current_sites = [self.init_random_route() for _ in range(ns)][:len(self.nb)]
+        self.ne_int = ne
+        self.ns_int = ns
+        self.nb_int = nb
+
     def init_random_route(self):
         route = list(range(self.n_cities))
         random.shuffle(route)
@@ -58,19 +65,100 @@ class BeeTSP:
 
         return distances
 
+    def _performLocalSearches(self):
+        for i in range(len(self.current_sites)):
+            if i < self.ne_int:
+                n_foragers = self.nre
+            else:
+                n_foragers = self.nrb
+            self._localSearch(i, n_foragers)
+
+    def _localSearch(self, index, n_foragers):
+        for _ in range(n_foragers):
+            new_route = self.two_edge_exchange(self.current_sites[index])
+            if self.get_distance(new_route) < self.get_distance(self.current_sites[index]):
+                self.current_sites[index] = new_route
+
+    def performsinglestep(self):
+        self._performLocalSearches()
+        self.current_sites += [self.init_random_route() for _ in range(self.ns_int)]
+        mapping_route_dist = {str(route): self.get_distance(route) for route in self.current_sites}
+        mapping_route_dist = dict(sorted(mapping_route_dist.items(), key=lambda item: item[1]))
+        self.current_sites = list(mapping_route_dist.keys())[:self.nb_int]
+        if self.get_distance(eval(list(mapping_route_dist.keys())[0])) < self.best_distance:
+            self.best_route = eval(list(mapping_route_dist.keys())[0])
+            self.best_distance = self.get_distance(eval(list(mapping_route_dist.keys())[0]))
+
+    def performFullOptimization(self, animate=True):
+        distances = []
+
+        if animate:
+            fig, axs = plt.subplots(1, 2, figsize=(12, 9))
+            best_route_line, = axs[1].plot([], [], 'k-')
+
+        def update_plot(frame):
+            axs[0].clear()
+            axs[1].clear()
+
+            # Plot the best distance
+            axs[0].plot(range(1, frame + 2), distances[:frame + 1])
+            axs[0].set_xlabel('Iteration')
+            axs[0].set_ylabel('Best Distance')
+            axs[0].set_title('Best Distance over Iterations')
+
+            # Plot the best route
+            best_route_coords = np.array([self.cities[i, :] for i in self.best_route])
+            best_route_line.set_data(best_route_coords[:, 0], best_route_coords[:, 1])
+            axs[1].plot(best_route_coords[:, 0], best_route_coords[:, 1], 'k-')
+            axs[1].scatter(best_route_coords[:, 0], best_route_coords[:, 1], s=100, c='red')
+            axs[1].set_xlabel('X')
+            axs[1].set_ylabel('Y')
+            axs[1].set_title('Best Route')
+
+        iteration = 0
+        for _ in tqdm(range(self.max_iter)):
+            self.performsinglestep()
+            distances.append(self.best_distance)
+            if animate:
+                update_plot(iteration)
+                plt.pause(0.1)  # Kurze Pause, um die Aktualisierung sichtbar zu machen
+            iteration += 1
+
+        if animate:
+            plt.show()
+
+        # Output the final best route
+        print(f"Best Route: {self.best_route}")
+        print(f"Best Distance: {self.best_distance}")
+        self.plot(self.best_route)
+
     def get_distance(self, route):
         # route = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0]
+
+        if isinstance(route, str):
+            route = eval(route)
 
         # check if route is valid
         first_city = route[0]
         last_city = route[-1]
+
         if first_city != last_city:
+            print(route)
+            print(f"Type of route: {type(route)}")
             raise ValueError("Route is not valid. First and last cities must be connected.")
         if len(route) != self.n_cities + 1:
+            print(route)
+            print(len(route))
+            # print missing city
+            for c in range(self.n_cities):
+                if c not in route:
+                    print(f"Missing city: {c}")
             raise ValueError("Route is not valid. Route must contain all cities.")
 
         for c in range(self.n_cities):
             if c not in route:
+                print(f"Missing city: {c}")
+                print(f"Route: {route}")
                 raise ValueError("Route is not valid. Route must contain all cities.")
 
         for c in range(self.n_cities):
@@ -85,6 +173,7 @@ class BeeTSP:
 
     def plot(self, route):
         # plot
+        route = eval(route)
         plt.figure(figsize=(10, 10))
         plt.scatter(self.cities[:, 0], self.cities[:, 1], s=100)
         for i in range(self.n_cities):
@@ -93,148 +182,184 @@ class BeeTSP:
             plt.plot([self.cities[route[i], 0], self.cities[route[i + 1], 0]],
                      [self.cities[route[i], 1], self.cities[route[i + 1], 1]], 'k-')
 
+        title_text = f"Best Distance: {self.best_distance}\nBest Route: {self.best_route}"
+        plt.title(title_text)
+
         plt.grid()
         plt.show()
 
-    def local_search(self):
-        for ne in self.ne:
-            for nre in range(self.nre):
-                new_route = self.two_edge_exchange(ne)
-                if self.get_distance(new_route) < self.best_distance:
-                    self.best_route = new_route
-                    self.best_distance = self.get_distance(new_route)
+    def neighborhood(self, route, n):
+        neighborhoods = []
+        while len(neighborhoods) < n:
+            new_neighborhood = self.two_edge_exchange(route)
+            if new_neighborhood not in neighborhoods:
+                neighborhoods.append(new_neighborhood)
 
-                    # get largest route in ns
-                    largest_route = max(self.ns, key=lambda x: self.get_distance(x))
+        return neighborhoods
 
-                    # get index of largest route in ns
-                    largest_route_index = self.ns.index(largest_route)
+    def best_search(self):
+        for i in range(len(self.ne)):
+            neighborhood = self.neighborhood(self.ne[i], self.nre)
+            neighborhood_dict = {str(route): self.get_distance(route) for route in neighborhood}
+            neighborhood_dict = dict(sorted(neighborhood_dict.items(), key=lambda item: item[1]))
+            self.ne[i] = list(neighborhood_dict.keys())[0]
 
-                    self.ns[largest_route_index] = new_route
+            if self.get_distance(self.ne[i]) < self.get_distance(self.ns[i]):
+                self.ns[i] = self.ne[i]
+
+            if self.get_distance(self.ne[i]) < self.best_distance:
+                self.best_route = self.ne[i]
+                self.best_distance = self.get_distance(self.ne[i])
 
     def two_edge_exchange(self, route):
-        i, j = random.sample(range(1, len(route) - 1), 2)
-        new_route = route.copy()
-        new_route[i], new_route[j] = new_route[j], new_route[i]
+        if isinstance(route, str):
+            route = eval(route)
 
-        return new_route[::-1]
+        # random number from 1 to 3
+        n = random.randint(1, 3)
+        if n == 1:
+            # make a 2-opt exchange
+            # Zufällige Auswahl von zwei verschiedenen Städten
+            i, j = random.sample(range(1, len(route) - 1), 2)
+
+            # Zwei-Kanten-Tausch (2-opt)
+            new_route_2opt = route.copy()
+            new_route_2opt[i], new_route_2opt[j] = new_route_2opt[j], new_route_2opt[i]
+
+            i, j = sorted([i, j])
+            new_route_reverse = route[i:j][::-1]
+            new_route_2opt_reverse = route[:i] + new_route_reverse + route[j:]
+
+            return new_route_2opt[::-1]
+        elif n == 2:
+            # make a reverse operation
+            # Zufällige Auswahl von zwei verschiedenen Städten
+            i, j = random.sample(range(1, len(route) - 1), 2)
+
+            # Reverse-Operation
+            # order i and j ascending
+            i, j = sorted([i, j])
+            new_route_reverse = route[i:j][::-1]
+            new_route_reverse = route[:i] + new_route_reverse + route[j:]
+
+            return new_route_reverse
+        elif n == 3:
+            # make a insert operation
+            # Zufällige Auswahl von zwei verschiedenen Städten
+            i, j = random.sample(range(1, len(route) - 1), 2)
+
+            # Insert-Nachbarschaft
+            new_route_insert = route.copy()
+            city_to_move = new_route_insert.pop(i)
+            new_route_insert.insert(j, city_to_move)
+
+            return new_route_insert
+
+    def elite_search(self):
+        for route_index in range(self.nb_int - self.ne_int):
+            neighborhood = self.neighborhood(self.nb[route_index], self.nrb)
+            neighborhood_dict = {str(route): self.get_distance(route) for route in neighborhood}
+            neighborhood_dict = dict(sorted(neighborhood_dict.items(), key=lambda item: item[1]))
+            self.nb[route_index] = list(neighborhood_dict.keys())[0]
+
+            if self.get_distance(self.nb[route_index]) < self.get_distance(self.ns[route_index]):
+                self.ns[route_index] = self.nb[route_index]
+
+            if self.get_distance(self.nb[route_index]) < self.best_distance:
+                self.best_route = self.nb[route_index]
+                self.best_distance = self.get_distance(self.nb[route_index])
 
     def global_search(self):
-        nb_minus_nb = len(self.nb) - len(self.ne)
-        for route_index in range(nb_minus_nb):
-            for nrb in range(self.nrb):
-                new_route = self.two_edge_exchange(self.nb[route_index])
-                if self.get_distance(new_route) < self.best_distance:
-                    self.best_route = new_route
-                    self.best_distance = self.get_distance(new_route)
+        ns_minus_nb_random = [self.init_random_route() for _ in range(self.ns_int - self.nb_int)]
 
-                    # get largest route in ns
-                    largest_route = max(self.ns, key=lambda x: self.get_distance(x))
+        ns_minus_nb_random_dict = {str(route): self.get_distance(route) for route in ns_minus_nb_random}
+        ns_minus_nb_random_dict = dict(sorted(ns_minus_nb_random_dict.items(), key=lambda item: item[1]))
 
-                    # get index of largest route in ns
-                    largest_route_index = self.ns.index(largest_route)
+        nb_new = []
+        # get first nb routes from ns_minus_nb_random_dict
+        for i in range(len(self.nb)):
+            if ns_minus_nb_random_dict[list(ns_minus_nb_random_dict.keys())[i]] <= self.get_distance(self.nb[i]):
+                nb_new.append(eval(list(ns_minus_nb_random_dict.keys())[i]))
+            else:
+                nb_new.append(self.nb[i])
+        self.nb = nb_new
 
-                    self.ns[largest_route_index] = new_route
+        ne_new = []
+        # get first ne routes from ns_minus_nb_random_dict
+        for i in range(len(self.ne)):
+            if ns_minus_nb_random_dict[list(ns_minus_nb_random_dict.keys())[i]] <= self.get_distance(self.ne[i]):
+                ne_new.append(eval(list(ns_minus_nb_random_dict.keys())[i]))
+            else:
+                ne_new.append(self.ne[i])
+        self.ne = ne_new
 
-    def fit(self, plot=True):
-        if plot:
+        for route, dist in ns_minus_nb_random_dict.items():
+            if dist < self.best_distance:
+                self.best_distance = dist
+                self.best_route = eval(route)
 
-            fig, axs = plt.subplots(1, 2, figsize=(12, 9)) if plot else (None, None)
-            distances = []
-            best_route_line, = axs[1].plot([], [], 'k-') if plot else (None,)
+    def fit(self, animate=True):
+        distances = []
+        if animate:
+            fig, axs = plt.subplots(1, 2, figsize=(10, 7))
+            best_route_line, = axs[1].plot([], [], 'k-')
 
             def update_plot(frame):
-                axs[0].clear() if plot else None
-                axs[1].clear() if plot else None
-
-                # Local Search Phase
-                self.local_search()
-
-                # Global Search Phase
-                self.global_search()
-
-                ns_minus_nb = len(self.ns) - len(self.nb)
-                ns_minus_nb_random = [self.init_random_route() for _ in range(ns_minus_nb)]
-                ns_minus_nb_random_dict = {str(route): self.get_distance(route) for route in ns_minus_nb_random}
-                ns_minus_nb_random_dict = dict(sorted(ns_minus_nb_random_dict.items(), key=lambda item: item[1]))
-
-                self.nb = list(ns_minus_nb_random_dict.keys())[:len(self.nb)]
-                self.ne = list(ns_minus_nb_random_dict.keys())[:len(self.ne)]
-
-                self.nb = [eval(route) for route in self.nb]
-                self.ne = [eval(route) for route in self.ne]
-
-                # update best route and best distance
-                for route in self.ns:
-                    if self.get_distance(route) < self.best_distance:
-                        self.best_route = route
-                        self.best_distance = self.get_distance(route)
-
-                distances.append(self.best_distance)
+                axs[0].clear()
+                axs[1].clear()
 
                 # Plot the best distance
-                axs[0].plot(range(1, frame + 2), distances[:frame + 1]) if plot else None
-                axs[0].set_xlabel('Iteration') if plot else None
-                axs[0].set_ylabel('Best Distance') if plot else None
-                axs[0].set_title('Best Distance over Iterations') if plot else None
+                axs[0].plot(range(1, frame + 2), distances[:frame + 1])
+                axs[0].set_xlabel('Iteration')
+                axs[0].set_ylabel('Best Distance')
+                axs[0].set_title(f'Best Distance over Iterations ({self.best_distance})')
 
                 # Plot the best route
-                if plot:
-                    best_route_coords = np.array([self.cities[i, :] for i in self.best_route])
-                    best_route_line.set_data(best_route_coords[:, 0], best_route_coords[:, 1])
-                    axs[1].plot(best_route_coords[:, 0], best_route_coords[:, 1], 'k-')
-                    axs[1].scatter(best_route_coords[:, 0], best_route_coords[:, 1], s=100, c='red')
-                    axs[1].set_xlabel('X')
-                    axs[1].set_ylabel('Y')
-                    axs[1].set_title('Best Route')
 
-            ani = animation.FuncAnimation(fig, update_plot, frames=self.max_iter, repeat=False,
-                                          interval=1) if plot else None
-            plt.show() if plot else None
+                best_route_coords = np.array([self.cities[i, :] for i in eval(self.best_route)])
+                best_route_line.set_data(best_route_coords[:, 0], best_route_coords[:, 1])
+                axs[1].plot(best_route_coords[:, 0], best_route_coords[:, 1], 'k-')
+                axs[1].scatter(best_route_coords[:, 0], best_route_coords[:, 1], s=100, c='red')
+                axs[1].set_xlabel('X')
+                axs[1].set_ylabel('Y')
+                axs[1].set_title('Best Route')
 
-            # Output the final best route
-            print(f"Best Route: {self.best_route}")
-            print(f"Best Distance: {self.best_distance}")
+        for _ in tqdm(range(self.max_iter)):
+            self.best_search() # best sites
+            self.elite_search()  # maybe not really global search; elite sites
 
-        else:
-            for _ in tqdm(range(self.max_iter)):
-                # Local Search Phase
-                self.local_search()
+            self.global_search()  # global search
 
-                # Global Search Phase
-                self.global_search()
+            distances.append(self.best_distance)
+            if animate:
+                update_plot(_)
+                plt.pause(0.01)
+            if not animate:
+                # print every 1000 iterations
+                if _ % 50 == 0:
+                    print(f"Best Distance: {self.best_distance}; Iteration: {_}")
 
-                ns_minus_nb = len(self.ns) - len(self.nb)
-                ns_minus_nb_random = [self.init_random_route() for _ in range(ns_minus_nb)]
-                ns_minus_nb_random_dict = {str(route): self.get_distance(route) for route in ns_minus_nb_random}
-                ns_minus_nb_random_dict = dict(sorted(ns_minus_nb_random_dict.items(), key=lambda item: item[1]))
+        # Output the final best route
+        print(f"Best Route: {self.best_route}")
+        print(f"Best Distance: {self.best_distance}")
+        self.plot(self.best_route)
 
-                self.nb = list(ns_minus_nb_random_dict.keys())[:len(self.nb)]
-                self.ne = list(ns_minus_nb_random_dict.keys())[:len(self.ne)]
 
-                self.nb = [eval(route) for route in self.nb]
-                self.ne = [eval(route) for route in self.ne]
-
-                # update best route and best distance
-                for route in self.ns:
-                    if self.get_distance(route) < self.best_distance:
-                        self.best_route = route
-                        self.best_distance = self.get_distance(route)
-
-            # Output the final best route
-            print(f"Best Route: {self.best_route}")
-            print(f"Best Distance: {self.best_distance}")
-
+def fit_optimum(self):
+    # brute force approach
+    # calculate all possible routes
+    all_routes = []
 
 
 if __name__ == '__main__':
-    ns = 500
-    max_iter = 10000
+    ns = 65
+    max_iter = 200
     n_cities = 20
-    nb = 200
-    ne = 40
-    nrb = 50
-    nre = 100
+    nb = 30
+    ne = 30
+    nrb = 15
+    nre = 20
 
     bee_tsp = BeeTSP(ns, max_iter, n_cities, nb, ne, nrb, nre)
-    bee_tsp.fit(False)
+    bee_tsp.fit(True)
+    # bee_tsp.performFullOptimization(animate=True)
