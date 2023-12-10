@@ -6,7 +6,6 @@ import time
 from tqdm import tqdm
 import itertools
 
-
 random.seed(42)
 
 
@@ -198,76 +197,144 @@ class BeeTSP:
         return neighborhoods
 
     def best_search(self):
-        for i in range(len(self.ne)):
-            neighborhood = self.neighborhood(self.ne[i], self.nre)
-            neighborhood_dict = {str(route): self.get_distance(route) for route in neighborhood}
+        # 2nd variant
+        self.ne = self.ns[:self.ne_int]
+        ne_route_dist_dict = {str(route): self.get_distance(route) for route in self.ne}
+        ne_route_dist_dict = dict(sorted(ne_route_dist_dict.items(), key=lambda item: item[1]))
+
+        index = 0
+        for route, dist in ne_route_dist_dict.items():
+            neighborhood = self.neighborhood(eval(route), self.nre)
+            neighborhood_dict = {str(route_n): self.get_distance(route_n) for route_n in neighborhood}
             neighborhood_dict = dict(sorted(neighborhood_dict.items(), key=lambda item: item[1]))
-            self.ne[i] = list(neighborhood_dict.keys())[0]
 
-            if self.get_distance(self.ne[i]) < self.get_distance(self.ns[i]):
-                self.ns[i] = self.ne[i]
+            self.ns[index] = eval(list(neighborhood_dict.keys())[0])
 
-            if self.get_distance(self.ne[i]) < self.best_distance:
-                self.best_route = self.ne[i]
-                self.best_distance = self.get_distance(self.ne[i])
+            if dist < self.best_distance:
+                self.best_distance = dist
+                self.best_route = route
+                self.ns[index] = eval(list(neighborhood_dict.keys())[0])
+
+            index += 1
+        ns_route_dist_dict = {str(route): self.get_distance(route) for route in self.ns}
+        ns_route_dist_dict = dict(sorted(ns_route_dist_dict.items(), key=lambda item: item[1]))
+        self.ns = [eval(route) for route in ns_route_dist_dict.keys()]
+
+        # 1st variant
+        # for i in range(len(self.ne)):
+        #     neighborhood = self.neighborhood(self.ne[i], self.nre)
+        #     neighborhood_dict = {str(route): self.get_distance(route) for route in neighborhood}
+        #     neighborhood_dict = dict(sorted(neighborhood_dict.items(), key=lambda item: item[1]))
+        #     self.ne[i] = list(neighborhood_dict.keys())[0]
+        #
+        #     local_best_distance = self.get_distance(self.ne[i])
+        #
+        #     if local_best_distance < self.get_distance(self.ns[i]):
+        #         self.ns[i] = self.ne[i]
+        #
+        #     if local_best_distance < self.best_distance:
+        #         self.best_route = self.ne[i]
+        #         self.best_distance = local_best_distance
+
+    def k_opt_exchange(self, route, k):
+        if k < 2 or k >= len(route) - 2:
+            print(k)
+            raise ValueError("k must be between 2 and len(route) - 2")
+
+        indices_to_swap = random.sample(range(1, len(route) - 1), k)
+
+        new_route = route.copy()
+
+        for i in range(k // 2):
+            new_route[indices_to_swap[i]], new_route[indices_to_swap[k - i - 1]] = (
+                new_route[indices_to_swap[k - i - 1]],
+                new_route[indices_to_swap[i]],
+            )
+
+        return new_route
+
+    def k_opt_exchange_reverse(self, route, k):
+        # Zufällige Auswahl von k verschiedenen Städten
+        indices = random.sample(range(1, len(route) - 1), k)
+        indices.sort()
+
+        # Reverse-Operation
+        new_route_reverse = route[indices[0]:indices[-1] + 1][::-1]
+        new_route = route[:indices[0]] + new_route_reverse + route[indices[-1] + 1:]
+
+        return new_route
+
+    def k_opt_insert(self, route, k):
+        # Zufällige Auswahl von k verschiedenen Städten
+        indices = random.sample(range(1, len(route) - 1), k)
+        index_to_insert = random.randint(1, len(route) - 2)
+
+        # Insert-Nachbarschaft
+        new_route_insert = route.copy()
+
+        for i in indices:
+            city_to_move = new_route_insert.pop(i)
+            new_route_insert.insert(index_to_insert, city_to_move)
+
+        return new_route_insert
 
     def two_edge_exchange(self, route):
         if isinstance(route, str):
             route = eval(route)
 
         # random number from 1 to 3
-        n = random.randint(1, 3)
+        n = 2
         if n == 1:
-            # make a 2-opt exchange
-            # Zufällige Auswahl von zwei verschiedenen Städten
-            i, j = random.sample(range(1, len(route) - 1), 2)
-
-            # Zwei-Kanten-Tausch (2-opt)
-            new_route_2opt = route.copy()
-            new_route_2opt[i], new_route_2opt[j] = new_route_2opt[j], new_route_2opt[i]
-
-            i, j = sorted([i, j])
-            new_route_reverse = route[i:j][::-1]
-            new_route_2opt_reverse = route[:i] + new_route_reverse + route[j:]
-
-            return new_route_2opt[::-1]
+            k = random.randint(2, len(route) - 3)
+            return self.k_opt_exchange(route, k)
         elif n == 2:
-            # make a reverse operation
-            # Zufällige Auswahl von zwei verschiedenen Städten
-            i, j = random.sample(range(1, len(route) - 1), 2)
+            k = random.randint(2, len(route) - 3)
+            return self.k_opt_exchange_reverse(route, k)
 
-            # Reverse-Operation
-            # order i and j ascending
-            i, j = sorted([i, j])
-            new_route_reverse = route[i:j][::-1]
-            new_route_reverse = route[:i] + new_route_reverse + route[j:]
-
-            return new_route_reverse
         elif n == 3:
-            # make a insert operation
-            # Zufällige Auswahl von zwei verschiedenen Städten
-            i, j = random.sample(range(1, len(route) - 1), 2)
-
-            # Insert-Nachbarschaft
-            new_route_insert = route.copy()
-            city_to_move = new_route_insert.pop(i)
-            new_route_insert.insert(j, city_to_move)
-
-            return new_route_insert
+            k = random.randint(2, len(route) - 3)
+            return self.k_opt_insert(route, k)
 
     def elite_search(self):
-        for route_index in range(self.nb_int - self.ne_int):
-            neighborhood = self.neighborhood(self.nb[route_index], self.nrb)
-            neighborhood_dict = {str(route): self.get_distance(route) for route in neighborhood}
+        # 2nd variant
+        nb_minus_ne = self.ns[:self.nb_int - self.ne_int] # ?? wrong??
+        nb_minus_ne_dict = {str(route): self.get_distance(route) for route in nb_minus_ne}
+        nb_minus_ne_dict = dict(sorted(nb_minus_ne_dict.items(), key=lambda item: item[1]))
+
+        index = 0
+        for route, dist in nb_minus_ne_dict.items():
+            neighborhood = self.neighborhood(eval(route), self.nrb)
+            neighborhood_dict = {str(route_n): self.get_distance(route_n) for route_n in neighborhood}
             neighborhood_dict = dict(sorted(neighborhood_dict.items(), key=lambda item: item[1]))
-            self.nb[route_index] = list(neighborhood_dict.keys())[0]
 
-            if self.get_distance(self.nb[route_index]) < self.get_distance(self.ns[route_index]):
-                self.ns[route_index] = self.nb[route_index]
+            self.ns[index] = eval(list(neighborhood_dict.keys())[0])
 
-            if self.get_distance(self.nb[route_index]) < self.best_distance:
-                self.best_route = self.nb[route_index]
-                self.best_distance = self.get_distance(self.nb[route_index])
+            if dist < self.best_distance:
+                self.best_distance = dist
+                self.best_route = route
+                self.ns[index] = eval(list(neighborhood_dict.keys())[0])
+            index += 1
+
+        # sort ns
+        ns_route_dist_dict = {str(route): self.get_distance(route) for route in self.ns}
+        ns_route_dist_dict = dict(sorted(ns_route_dist_dict.items(), key=lambda item: item[1]))
+        self.ns = [eval(route) for route in ns_route_dist_dict.keys()]
+
+        # 1st variant
+        # for route_index in range(self.nb_int - self.ne_int):
+        #     neighborhood = self.neighborhood(self.nb[route_index], self.nrb)
+        #     neighborhood_dict = {str(route): self.get_distance(route) for route in neighborhood}
+        #     neighborhood_dict = dict(sorted(neighborhood_dict.items(), key=lambda item: item[1]))
+        #     self.nb[route_index] = list(neighborhood_dict.keys())[0]
+        #
+        #     local_best_distance = self.get_distance(self.nb[route_index])
+        #
+        #     if local_best_distance < self.get_distance(self.ns[route_index]):
+        #         self.ns[route_index] = self.nb[route_index]
+        #
+        #     if local_best_distance < self.best_distance:
+        #         self.best_route = self.nb[route_index]
+        #         self.best_distance = local_best_distance
 
     def global_search(self):
         ns_minus_nb_random = [self.init_random_route() for _ in range(self.ns_int - self.nb_int)]
@@ -275,28 +342,40 @@ class BeeTSP:
         ns_minus_nb_random_dict = {str(route): self.get_distance(route) for route in ns_minus_nb_random}
         ns_minus_nb_random_dict = dict(sorted(ns_minus_nb_random_dict.items(), key=lambda item: item[1]))
 
-        nb_new = []
-        # get first nb routes from ns_minus_nb_random_dict
-        for i in range(len(self.nb)):
-            if ns_minus_nb_random_dict[list(ns_minus_nb_random_dict.keys())[i]] <= self.get_distance(self.nb[i]):
-                nb_new.append(eval(list(ns_minus_nb_random_dict.keys())[i]))
-            else:
-                nb_new.append(self.nb[i])
-        self.nb = nb_new
+        # nb_new = []
+        # # get first nb routes from ns_minus_nb_random_dict
+        # for i in range(len(self.nb)):
+        #     if ns_minus_nb_random_dict[list(ns_minus_nb_random_dict.keys())[i]] < self.get_distance(self.nb[i]):
+        #         nb_new.append(eval(list(ns_minus_nb_random_dict.keys())[i]))
+        #     else:
+        #         nb_new.append(self.nb[i])
+        # self.nb = nb_new
+        #
+        # ne_new = []
+        # # get first ne routes from ns_minus_nb_random_dict
+        # for i in range(len(self.ne)):
+        #     if ns_minus_nb_random_dict[list(ns_minus_nb_random_dict.keys())[i]] < self.get_distance(self.ne[i]):
+        #         ne_new.append(eval(list(ns_minus_nb_random_dict.keys())[i]))
+        #     else:
+        #         ne_new.append(self.ne[i])
+        # self.ne = ne_new
 
-        ne_new = []
-        # get first ne routes from ns_minus_nb_random_dict
-        for i in range(len(self.ne)):
-            if ns_minus_nb_random_dict[list(ns_minus_nb_random_dict.keys())[i]] <= self.get_distance(self.ne[i]):
-                ne_new.append(eval(list(ns_minus_nb_random_dict.keys())[i]))
-            else:
-                ne_new.append(self.ne[i])
-        self.ne = ne_new
-
+        # update ns
+        index = 0
         for route, dist in ns_minus_nb_random_dict.items():
-            if dist < self.best_distance:
-                self.best_distance = dist
-                self.best_route = eval(route)
+            if dist < self.get_distance(self.ns[index]) and eval(route) not in self.ns:
+                self.ns[index] = eval(route)
+
+                if dist < self.best_distance:
+                    self.best_distance = dist
+                    self.best_route = eval(route)
+                    self.ns[index] = eval(route)
+            index += 1
+
+        # sort ns
+        ns_route_dist_dict = {str(route): self.get_distance(route) for route in self.ns}
+        ns_route_dist_dict = dict(sorted(ns_route_dist_dict.items(), key=lambda item: item[1]))
+        self.ns = [eval(route) for route in ns_route_dist_dict.keys()]
 
     def fit(self, animate=True):
         distances = []
@@ -325,10 +404,15 @@ class BeeTSP:
                 axs[1].set_title('Best Route')
 
         for _ in tqdm(range(self.max_iter)):
-            self.best_search() # best sites
-            self.elite_search()  # maybe not really global search; elite sites
+            self.best_search()  # best sites
+            self.elite_search()  # elite sites
 
             self.global_search()  # global search
+
+            # print lenghts
+            # print(f"nb: {len(self.nb)}")
+            # print(f"ne: {len(self.ne)}")
+            # print(f"ns: {len(self.ns)}")
 
             distances.append(self.best_distance)
             if animate:
@@ -352,14 +436,15 @@ def fit_optimum(self):
 
 
 if __name__ == '__main__':
-    ns = 65
-    max_iter = 200
+    ns = 100
+    max_iter = 2000
     n_cities = 20
-    nb = 30
-    ne = 30
-    nrb = 15
-    nre = 20
+    nb = 20
+    ne = 15
+    nrb = 3
+    nre = 50
 
     bee_tsp = BeeTSP(ns, max_iter, n_cities, nb, ne, nrb, nre)
     bee_tsp.fit(True)
+
     # bee_tsp.performFullOptimization(animate=True)
