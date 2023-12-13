@@ -8,6 +8,9 @@ import itertools
 
 random.seed(42)
 
+# display more columns in numpy array
+np.set_printoptions(linewidth=200)
+
 
 class BeeTSP:
 
