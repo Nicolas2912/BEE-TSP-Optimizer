@@ -212,14 +212,23 @@ classdef BeeTSP < Bee
     function solve(obj)
         fig = figure;
         obj.initialRandSolution();
+        tic;  % Start the timer
         for t = 1:obj.iterations
             obj.eliteSearch();
             obj.bestSearch();
             obj.globalFill();
             obj.calculateBests();
-            obj.animate(fig, t);
+            % obj.animate(fig, t);
         end
-        % obj.visualize();
+        elapsedTime = toc;  % Read the elapsed time
+        fprintf('Number of cities: %.0f\n', obj.routeLen);
+        fprintf('Iterations: %.0f\n', obj.iterations)
+        fprintf('Total Elapsed Time: %.2f seconds\n', elapsedTime);
+        best_route = obj.bees(1, 1:end-1);
+        fprintf('Best Route: %s\n', mat2str(best_route));
+        best_distance = obj.bees(1, end);
+        fprintf('Best distance: %.3f\n', best_distance);
+        obj.visualize();
     end
 
     end
