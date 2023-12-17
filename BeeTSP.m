@@ -33,9 +33,11 @@ classdef BeeTSP < Bee
     end
     
     function coords = randCoords(obj)
-        coords = [];
+    % Preallocate the matrix
+        coords = zeros(obj.routeLen, 2);
+    
         for i = 1:obj.routeLen
-            coords = [coords; randi([0, 100]), randi([0, 100])];
+            coords(i, :) = [randi([0, 100]), randi([0, 100])];
         end
     end
 
@@ -55,8 +57,7 @@ classdef BeeTSP < Bee
             y = obj.eval(x);
             obj.bees = [obj.bees; [x, y]];
         end
-        obj.bees = sortrows(obj.bees, obj.routeLen);
-        % disp(obj.bees);
+        obj.bees = sortrows(obj.bees, obj.routeLen+1);
     end
     
     function newRoute = mutate(obj, route)
@@ -85,7 +86,7 @@ classdef BeeTSP < Bee
                     bestValue = mutationObjective;
                 end
             end
-            if bestValue < obj.bees(e, obj.routeLen+1)
+            if bestValue < obj.bees(e, obj.routeLen)
                 obj.bees(e, :) = [bestMutation, bestValue];
             end
         end
@@ -152,7 +153,11 @@ classdef BeeTSP < Bee
         hold off;
     end
     
-    function animate(obj, fig)
+    function animate(obj, fig, iteration)
+        if mod(iteration, 50) ~= 0
+            return;
+        end
+
         if ~isvalid(fig)
             return;
         end
@@ -189,7 +194,7 @@ classdef BeeTSP < Bee
         ylabel('Y Coordinate');
 
         subplot(1,2,2);
-         % Create a subplot for the best distances
+        % Create a subplot for the best distances
         subplot(1, 2, 2);
         plot(obj.best_distances, 'LineWidth', 2);
         title('Best Distance Over Time');
@@ -212,7 +217,7 @@ classdef BeeTSP < Bee
             obj.bestSearch();
             obj.globalFill();
             obj.calculateBests();
-            obj.animate(fig);
+            obj.animate(fig, t);
         end
         % obj.visualize();
     end
