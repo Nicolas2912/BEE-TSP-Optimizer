@@ -122,13 +122,11 @@ classdef BeeTSP < Bee
 
 
     function calculateBests(obj)
-        obj.bees = sortrows(obj.bees, 21);
+        obj.bees = sortrows(obj.bees, size(obj.bees, 2));
     end
 
     function visualize(obj)
         tspRoute = obj.bees(1,1:end-1);
-        disp('tsp route')
-        disp(tspRoute);
         coords = obj.coords;
         x_coords = coords(:, 1);
         y_coords = coords(:, 2);
