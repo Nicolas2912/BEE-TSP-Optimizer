@@ -100,6 +100,5 @@ classdef Bee < handle
             end
             obj.bees = sortrows(obj.bees, size(obj.bees, 2));
         end
-
     end
 end
