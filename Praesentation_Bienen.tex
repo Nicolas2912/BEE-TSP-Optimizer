@@ -245,15 +245,15 @@
 %----------------------------------------------------------------------------------------
 %	PRESENTATION INFORMATION
 %----------------------------------------------------------------------------------------
-\title[KNN für das ASL-Fingeralphabet]{Anwendung eines künstlichen neuronalen Netzwerkes anhand einer typischen Bildauswertung} % The short title in the optional parameter appears at the bottom of every slide, the full title in the main parameter is only on the title page
+\title[Bienen-Algorithmus und das TSP]{Bienen-Algorithmus und das TSP} % The short title in the optional parameter appears at the bottom of every slide, the full title in the main parameter is only on the title page
 
-\subtitle{KNN für das ASL-Fingeralphabet} % Presentation subtitle, remove this command if a subtitle isn't required
+%\subtitle{Bienenalgorithmus} % Presentation subtitle, remove this command if a subtitle isn't required
 
 \author[Schneider / Langenkamp]{\color{UBCblue}	 Nicolas Schneider und Linus Langenkamp} % Presenter name(s), the optional parameter can contain a shortened version to appear on the bottom of every slide, while the main parameter will appear on the title slide
 
 \institute[]{\color{UBCblue}	 Hochschule Bielefeld} % Your institution, the optional parameter can be used for the institution shorthand and will appear on the bottom of every slide after author names, while the required parameter is used on the title slide and can include your email address or additional information on separate lines
 
-\date[06.12.2023]{\color{UBCblue}	 Simulation optischer Systeme \\ 06.12.2023} % Presentation date or conference/meeting name, the optional parameter can contain a shortened version to appear on the bottom of every slide, while the required parameter value is output to the title slide
+\date[18.12.2023]{\color{UBCblue}	 Bionische Methoden der Optimierung \\ 18.12.2023} % Presentation date or conference/meeting name, the optional parameter can contain a shortened version to appear on the bottom of every slide, while the required parameter value is output to the title slide
 
 %----------------------------------------------------------------------------------------
 
@@ -266,7 +266,7 @@
 	\begin{frame}
 		\begin{figure}
 			\centering
-			\includegraphics[width=4.5cm]{Abbildungen/HSBI_Logo_RGB_schwarz.png}\par \vspace{0.1cm}
+			\includegraphics[width=4.5cm]{HSBI_Logo_RGB_schwarz.png}\par \vspace{0.1cm}
 		\end{figure}
 		\titlepage % Output the title slide, automatically created using the text entered in the PRESENTATION INFORMATION block above
 	\end{frame}
@@ -295,18 +295,7 @@
 		\color{UBCblue}
 		\begin{enumerate}
 			\color{UBCblue}	
-			\item[-] Klassifikation von Buchstaben des ASL-Fingeralphabets
-			\item[-] Beispiele für F und D:
-		\end{enumerate}	
-		\begin{figure}
-			\centering
-			\includegraphics[width=4cm]{Abbildungen/F8.jpg}
-			\includegraphics[width=4cm]{Abbildungen/D6.jpg}
-		\end{figure}
-	
-		\begin{enumerate}
-			\color{UBCblue}	
-			\item[-] Verwechslungen sind teilweise sehr naheliegend
+			\item[-] Test
 		\end{enumerate}	
 	\end{frame}
 
@@ -315,54 +304,21 @@
 	\begin{frame}
 		\frametitle{Datenbasis}
 		\color{UBCblue}
-		\begin{enumerate}
-			\color{UBCblue}
-			\item[-] frei verfügbarer Datensatz
-			\item[-] Training:
-			\begin{enumerate}
-				\color{UBCblue}
-				\item[-] $87000$ Bilder der Größe $200 \cross 200$
-				\item[-] $29$ Labels, $26$ davon Buchstaben sowie Space, Delete und Nothing
-				\item[-] jede Klasse enthält ungefähr $4000$ Bilder
-			\end{enumerate}
-		\item[-] Testen:
-			\begin{enumerate}
-				\color{UBCblue}
-				\item[-] spezifisches Bild zu jedem Buchstaben
-				\item[-] Erweiterungen mittels eigener Bilder
-			\end{enumerate}	
-		\end{enumerate}	
+
 	\end{frame}
 	
 	\section{Vorgehen}
 	\begin{frame}
 		\frametitle{Vorgehen}
 		\color{UBCblue}
-		\begin{enumerate}
-			\color{UBCblue}	
-			\item[-] Entwurf eines künstlichen neuronalen Netzes
-			\begin{enumerate}
-				\color{UBCblue}	
-				\item[-] Aufbau des Netzes
-				\item[-] Datenvorverarbeitung
-				\item[-] Training
-				\item[-] Testen und Validieren
-				\item[-] Optimieren
-			\end{enumerate}
-		\item[-] Integration des KNN in einer eigenen Anwendung
-		\end{enumerate}	
+
 	\end{frame}
 	
 	\section{Ziele}
 	\begin{frame}
 		\frametitle{Ziele}
 		\color{UBCblue}
-		\begin{enumerate}
-			\color{UBCblue}	
-			\item[-] weitgehend korrekte Klassifikation der 29 Zeichen
-			\item[-] Anwendung des KNN auf ein Video von Zeichen, welches in einem Satz resultiert
-			\item[-] Echtzeiterkennung von Sätzen
-		\end{enumerate}	
+
 	\end{frame}
 		
 \end{document} 
