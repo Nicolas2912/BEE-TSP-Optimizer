@@ -3,6 +3,7 @@ classdef BeeTSP < Bee
         routeLen
         coords
         distances
+        best_distances
     end
     methods
         function obj = BeeTSP(inp, ns, nb, ne, nrb, nre, iterations)
@@ -20,13 +21,8 @@ classdef BeeTSP < Bee
         end
         
         function value = eval(obj, instance)
-            value = 0;
-            %disp(instance);
-            
+            value = 0;            
             for i = 2:length(instance)
-                %disp(length(obj.distances));
-                %disp(instance(i-1));
-                %disp(instance(i));
                 value = value + obj.distances(instance(i-1), instance(i));
             end
             value = value + obj.distances(instance(end), 1);
@@ -83,7 +79,6 @@ classdef BeeTSP < Bee
             bestMutation = [];
             for i = 1:obj.nre
                 mutation = obj.mutate(obj.bees(e, :));
-                %disp(mutation);
                 mutationObjective = obj.eval(mutation);
                 if mutationObjective < bestValue
                     bestMutation = mutation;
@@ -123,6 +118,7 @@ classdef BeeTSP < Bee
 
     function calculateBests(obj)
         obj.bees = sortrows(obj.bees, size(obj.bees, 2));
+        obj.best_distances = [obj.best_distances; obj.bees(1, end)];
     end
 
     function visualize(obj)
@@ -156,15 +152,69 @@ classdef BeeTSP < Bee
         hold off;
     end
     
+    function animate(obj, fig)
+        if ~isvalid(fig)
+            return;
+        end
+
+        clf(fig);
+
+        subplot(1,2,1);
+
+        % Get the current best route and its coordinates
+        tspRoute = obj.bees(1,1:end-1);
+        coords = obj.coords;
+        x_coords = coords(:, 1);
+        y_coords = coords(:, 2);
+
+        % Plot the points
+        scatter(x_coords, y_coords, 'blue', 'o', 'DisplayName', 'Cities');
+
+        % Plot the TSP route
+        for i = 1:length(tspRoute)
+            next_i = mod(i, length(tspRoute)) + 1;
+            line([x_coords(tspRoute(i)), x_coords(tspRoute(next_i))], ...
+                 [y_coords(tspRoute(i)), y_coords(tspRoute(next_i))], 'Color', 'red');
+        end
+
+        % Highlight the starting point
+        hold on;
+        scatter(x_coords(tspRoute(1)), y_coords(tspRoute(1)), 'green', 's', 'DisplayName', 'Start');
+
+        % Add labels and title
+        bestdistance = obj.bees(1, end);
+        titleText = sprintf('TSP Route Visualization - Best Distance: %f', bestdistance);
+        title(titleText);
+        xlabel('X Coordinate');
+        ylabel('Y Coordinate');
+
+        subplot(1,2,2);
+         % Create a subplot for the best distances
+        subplot(1, 2, 2);
+        plot(obj.best_distances, 'LineWidth', 2);
+        title('Best Distance Over Time');
+        xlabel('Iteration');
+        ylabel('Best Distance');
+        grid on;
+
+        % Show the plot
+        hold off;
+
+        % Pause for a short time to create the animation effect
+        pause(0.001);
+    end
+
     function solve(obj)
+        fig = figure;
         obj.initialRandSolution();
         for t = 1:obj.iterations
             obj.eliteSearch();
             obj.bestSearch();
             obj.globalFill();
             obj.calculateBests();
+            obj.animate(fig);
         end
-        obj.visualize();
+        % obj.visualize();
     end
 
     end
