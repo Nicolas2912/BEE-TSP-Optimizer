@@ -29,17 +29,30 @@
 
 ## Implementation
 
-* Die Klasse `BeeTSP` erbt von der Klasse Bee.
-* Sie hat eine __init__ Methode, die die Initialisierung der Klasse handhabt. Sie nimmt verschiedene Parameter wie ns, nb, ne, nrb, nre, iterations und inp entgegen. inp kann entweder die Länge der Route oder die Koordinaten sein.
-* Die Methode eval berechnet die Gesamtdistanz einer gegebenen Route.
-* Die Methode random erzeugt eine zufällige Route.
-* Die Methode initialRandSolution initialisiert die Lösung mit zufälligen Routen.
-* Die Methode randCoords erzeugt zufällige Koordinaten für die Städte.
-* Die Methode evalDistances berechnet die Distanzen zwischen allen Städten.
-* Die Methode mutate führt eine Mutation auf einer gegebenen Route durch, indem sie zwei zufällige Städte in der Route vertauscht.
-* Die Methode eliteSearch führt eine Elite-Suche durch, bei der die besten Routen ausgewählt und mutiert werden, um möglicherweise bessere Routen zu finden.
-* Die Methode bestSearch führt eine ähnliche Suche wie die Elite-Suche durch, aber auf den restlichen Routen (nicht den besten).
-* Die Methode globalFill füllt den Rest der Bienenpopulation mit zufälligen Routen auf.
-* Die Methode calculateBests sortiert die Bienenpopulation nach ihrer Fitness (Gesamtdistanz der Route).
-* Die Methode visualize visualisiert die beste gefundene Route.
-* Die Methode solve führt den gesamten Algorithmus aus, indem sie die oben genannten Methoden in einer bestimmten Reihenfolge aufruft.
+* Die Klasse `BeeTSP` erbt von der Klasse `Bee`.
+* Berechnung der Gesamtdistanz mit eval.
+* Erzeugung einer zufälligen Route mit random.
+* Initialisierung der Lösung mit initialRandSolution.
+* Erzeugung zufälliger Städtekoordinaten mit randCoords.
+* Berechnung der Distanzen zwischen Städten mit evalDistances.
+* Durchführung einer Mutation mit mutate.
+* Durchführung einer Elite-Suche mit eliteSearch.
+* Durchführung einer besten Suche mit bestSearch.
+* Füllung der Bienenpopulation mit globalFill.
+* Sortierung der Bienenpopulation mit calculateBests.
+* Visualisierung der besten Route mit visualize.
+* Ausführung des gesamten Algorithmus mit solve.
+
+### Efiziente Implementation in Matlab
+
+* ...
+
+## Resultate
+
+* Code live ausführen
+* Wahl der Parameter
+* Auf eventuelle Besonderheiten eingehen (lokale Minima, Zeit etc.)
+
+## Verbesserungsmöglichkeiten
+
+* Parameter optimieren
