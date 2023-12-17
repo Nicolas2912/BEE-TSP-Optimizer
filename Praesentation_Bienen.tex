@@ -288,36 +288,102 @@
 	%	PRESENTATION BODY SLIDES
 	%----------------------------------------------------------------------------------------
 	
-	\section{Problemstellung} 
-	
+	\section{TSP} 	
 	\begin{frame}
-		\frametitle{Problemstellung}
+		\frametitle{TSP}
 		\color{UBCblue}
 		\begin{enumerate}
 			\color{UBCblue}	
-			\item[-] Test
+			\item[-] \textbf{Gegeben:}
+			\begin{itemize}
+				\item Anzahl der Städte $n$
+				\item Koordinaten der Städte oder die Distanzen zwischen den Städten.
+			
+			\end{itemize}
+			
+			\item[-] \textbf{Ziel:}
+			\begin{itemize}
+				\item Finde die kürzeste Rundreise, die alle Städte besucht und zum Startpunkt zurückkehrt.
+				
+			\end{itemize}
+			
+			\item[-] \textbf{Herausforderungen:}
+			\begin{itemize}
+				\item Anzahl der Lösungen wächst exponentiell [$(n -1)!$ mögliche Touren]
+				\item NP-schweres Problem
+				\item Kein polynomieller Algorithmus bekannt
+				\item Heuristiken können schnell gute Lösungen liefern, aber garantieren keine Optimalität
+				\item Exakte Algorithmen sind ineffizient für große Problemgrößen
+				
+			\end{itemize}
 		\end{enumerate}	
 	\end{frame}
+	
+	\section{Grundlagen des Bienenalgorithmus} 	
+	\begin{frame}
+		\frametitle{Grundlagen des Bienenalgorithmus}
+		\begin{columns}
+			\begin{column}{0.5\textwidth}
+				\color{UBCblue}
+				\begin{enumerate}
+					\color{UBCblue}	
+					\item[-] \textbf{Parameter:}
+					\begin{itemize}
+						\item $ns$: \glqq Scout\grqq{}-Bienen
+						\item $nb$: Futterstellen mit bestem Fitness-Wert
+						\item $ne$: \glqq allerbesten\grqq{} Futterstellen
+						\item $nre$: Anzahl der Nachbarschaften der $ne$ Stellen
+						\item $nrb$: Anzahl der Nachbarschaften der $nb - ne$ Stellen
+					\end{itemize}
+				\end{enumerate}
+			\end{column}
+			\begin{column}{0.5\textwidth}
+				\begin{figure}
+					\includegraphics[width=\textwidth]{bee_algorithm.png}
+					\caption{Ablauf des Bienenalgorithmus.}
+				\end{figure}
+			\end{column}
+		\end{columns}
+	\end{frame}
 
 	
-	\section{Datenbasis}
+	\section{Bienenalgorithmus und das TSP}
 	\begin{frame}
-		\frametitle{Datenbasis}
+		\frametitle{Bienenalgorithmus und das TSP}
+		\color{UBCblue}
+		\begin{itemize}
+			\item Anwendung des Bienen-Algorithmus auf \textbf{diskretes} Problem (TSP)
+			\item Finde \glqq gute\grqq{} Routen
+			\item Wähle diese als Futterstellen (besten und allerbesten)
+			\item Bienen bewegen sich um die Futterstellen, um bessere zu finden (lokale Suche, Mutation)
+			\item Was ist die Nachbarschaft?
+			
+			\begin{itemize}
+				\item \textit{2-opt-Kantentausch}
+				\item Umkehrung des Durchlaufsinns
+			
+			\end{itemize}
+		\end{itemize}
+
+	\end{frame}
+	
+	\section{Implementation}
+	\begin{frame}
+		\frametitle{Implementation}
 		\color{UBCblue}
 
 	\end{frame}
 	
-	\section{Vorgehen}
+	\section{Resultate}
 	\begin{frame}
-		\frametitle{Vorgehen}
+		\frametitle{Resultate}
 		\color{UBCblue}
-
-	\end{frame}
-	
-	\section{Ziele}
-	\begin{frame}
-		\frametitle{Ziele}
-		\color{UBCblue}
+		\begin{center}
+			\begin{figure}
+				\includegraphics[width=\textwidth]{nearoptimalsolution_300.png}
+				\caption{Lösung.}
+			\end{figure}
+		\end{center}
 
 	\end{frame}
 		
