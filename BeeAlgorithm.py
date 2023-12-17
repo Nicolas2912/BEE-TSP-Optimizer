@@ -1,5 +1,6 @@
 import random
 import matplotlib.pyplot as plt
+import time
 
 
 class Bee:
@@ -13,43 +14,75 @@ class Bee:
         self.iterations = iterations
         self.bees = []
 
-    def solve(self):
+    def solve(self, visualize=False):
         self.initialRandSolution()
         for t in range(self.iterations):
             self.eliteSearch()
             self.bestSearch()
             self.globalFill()
             self.calculateBests()
-
+        if visualize:
+            self.visualize()
+        return
 
     def eliteSearch(self):
-        pass
-
-    def globalFill(self):
-        pass
+        for e in range(self.ne):
+            bestValue = float("inf")
+            bestMutation = []
+            for i in range(self.nre):
+                mutation = self.mutate(self.bees[e][0])
+                mutationObjective = self.eval(mutation)
+                if mutationObjective < bestValue:
+                    bestMutation, bestValue = mutation, mutationObjective
+            if bestValue < self.bees[e][1]:
+                self.bees[e] = (bestMutation, bestValue)
+        return
 
     def bestSearch(self):
-        pass
+        for b in range(self.ne + 1, self.nb + 1):
+            bestValue = float("inf")
+            bestMutation = []
+            for i in range(self.nrb):
+                mutation = self.mutate(self.bees[b][0])
+                mutationObjective = self.eval(mutation)
+                if mutationObjective < bestValue:
+                    bestMutation, bestValue = mutation, mutationObjective
+            if bestValue < self.bees[b][1]:
+                self.bees[b] = (bestMutation, bestValue)
+        return
+
+    def globalFill(self):
+        for g in range(self.nb + 1, len(self.bees)):
+            self.bees[g] = self.random()
+        return
+
+    def initialRandSolution(self):
+        for iter in range(self.ns):
+            x = self.random()
+            y = self.eval(x)
+            self.bees.append((x, y))
+        self.bees.sort(key=lambda bee: bee[1])
+        return
+
+    def calculateBests(self):
+        sorted(self.bees, key=lambda bee: bee[1])
 
     def mutate(self, instance):
         pass
 
     def eval(self, instance):
+        return 0
+
+    def random(self):
         pass
 
-    def randSolution(self):
-        pass
-
-    def initialRandSolution(self):
-        pass
-
-    def calculateBests(self):
+    def visualize(self):
         pass
 
 
 class BeeTSP(Bee):
 
-    def __init__(self, inp, ns=75, nb=55, ne=15, nrb=25, nre=25, iterations=2000):
+    def __init__(self, inp, ns=75, nb=55, ne=15, nrb=25, nre=25, iterations=5000):
         super(BeeTSP, self).__init__(ns, nb, ne, nrb, nre, iterations)
         if "routeLen" in inp:
             self.routeLen = inp["routeLen"]
@@ -72,14 +105,6 @@ class BeeTSP(Bee):
         r = list(range(1, self.routeLen))
         random.shuffle(r)
         return [0] + r
-
-    def initialRandSolution(self):
-        for iter in range(self.ns):
-            x = self.random()
-            y = self.eval(x)
-            self.bees.append((x, y))
-        self.bees.sort(key=lambda bee: bee[1])
-        return
 
     def randCoords(self):
         coords = []
@@ -115,77 +140,36 @@ class BeeTSP(Bee):
             temp[idx2: idx1] = instance[idx2: idx1][::-1]
             return temp
 
-    def eliteSearch(self):
-        for e in range(self.ne):
-            bestValue = float("inf")
-            bestMutation = []
-            for i in range(self.nre):
-                mutation = self.mutate(self.bees[e][0])
-                mutationObjective = self.eval(mutation)
-                if mutationObjective < bestValue:
-                    bestMutation, bestValue = mutation, mutationObjective
-            if bestValue < self.bees[e][1]:
-                self.bees[e] = (bestMutation, bestValue)
-        return
-
-    def bestSearch(self):
-        for b in range(self.ne + 1, self.nb + 1):
-            bestValue = float("inf")
-            bestMutation = []
-            for i in range(self.nrb):
-                mutation = self.mutate(self.bees[b][0])
-                mutationObjective = self.eval(mutation)
-                if mutationObjective < bestValue:
-                    bestMutation, bestValue = mutation, mutationObjective
-            if bestValue < self.bees[b][1]:
-                self.bees[b] = (bestMutation, bestValue)
-        return
-
-    def globalFill(self):
-        for g in range(self.nb + 1, len(self.bees)):
-            self.bees[g] = self.random()
-        return
-
-    def calculateBests(self):
-        sorted(self.bees, key=lambda bee: bee[1])
-
     def visualize(self):
         tspRoute, tspObjective = self.bees[0][0], self.bees[0][1]
         x_coords, y_coords = zip(*self.coords)
-
-        # Plot the points
         plt.scatter(x_coords, y_coords, color='blue', marker='o', label='Cities')
-
-        # Plot the TSP route
         for i in range(len(tspRoute) - 1):
             plt.plot([x_coords[tspRoute[i]], x_coords[tspRoute[i + 1]]],
                      [y_coords[tspRoute[i]], y_coords[tspRoute[i + 1]]], color='red')
-
-        # Connect the last point to the starting point to complete the loop
         plt.plot([x_coords[tspRoute[-1]], x_coords[tspRoute[0]]],
                  [y_coords[tspRoute[-1]], y_coords[tspRoute[0]]], color='red')
-
-        # Highlight the starting point
         plt.scatter(x_coords[tspRoute[0]], y_coords[tspRoute[0]], color='green', marker='s', label='Start')
-
-        # Add labels and title
         plt.title('TSP Route Visualization')
         plt.xlabel('X Coordinate')
         plt.ylabel('Y Coordinate')
         plt.legend()
-
-        # Show the plot
         plt.show()
 
-    def solve(self):
+    def solve(self, visualize=True):
         self.initialRandSolution()
         for t in range(self.iterations):
             self.eliteSearch()
             self.bestSearch()
             self.globalFill()
             self.calculateBests()
-        self.visualize()
+            if (t + 1) % 50 == 0:
+                print('Iteration: %s, Objective: %s' % (t + 1, self.bees[0][1]))
+        if visualize:
+            self.visualize()
 
 
-tsp = BeeTSP(inp={"routeLen": 100})
+start = time.time()
+tsp = BeeTSP(inp={"routeLen": 100}, iterations=1000)
 tsp.solve()
+print('Time: ' + str(time.time() - start))
