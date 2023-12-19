@@ -5,11 +5,25 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="b71719bd-2a58-4f90-a4da-a01df85db024" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/.idea/BEE-TSP-Optimizer.iml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Bee.m" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/BeeAlgorithm.py" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/BeeTSP.m" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Praesentation_Bienen.pdf" beforeDir="false" afterPath="$PROJECT_DIR$/Praesentation_Bienen.pdf" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Praesentation_Bienen.tex" beforeDir="false" afterPath="$PROJECT_DIR$/Praesentation_Bienen.tex" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.m" beforeDir="false" afterPath="$PROJECT_DIR$/main.m" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/HSBI_Logo_RGB_schwarz.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Praesentation_Bienen.pdf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Praesentation_Bienen.tex" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Problem.m" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/TSP.m" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bee_algorithm.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/beetsp.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/class_diagramm.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.m" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/nearoptimalsolution_300.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/presentation_bullet_points.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/solution_250.png" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -51,9 +65,10 @@
     &quot;Python.scratch.executor&quot;: &quot;Run&quot;,
     &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
     &quot;git-widget-placeholder&quot;: &quot;main&quot;,
     &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/Anwender/Desktop/Nicolas/Dokumente/FH Bielefeld/Optimierung und Simulation/2. Semester/BionischeMethodenderOptimierung/BEE-TSP-Optimizer&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/Users/nicolasschneider/MeineDokumente/FH_Bielefeld/Optimierung_und_Simulation/2. Semester/BionischeMethodenderOptimierung/BEE-TSP-Optimizer&quot;,
     &quot;project.structure.last.edited&quot;: &quot;Project&quot;,
     &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
     &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
@@ -63,7 +78,6 @@
   <component name="RunManager" selected="Python.beetsp">
     <configuration name="beetsp" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="BEE-TSP-Optimizer" />
-      <option name="ENV_FILES" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs>
@@ -85,7 +99,6 @@
     </configuration>
     <configuration name="scratch" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="BEE-TSP-Optimizer" />
-      <option name="ENV_FILES" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs>
