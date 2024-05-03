@@ -76,6 +76,7 @@ class Bee:
                 mutationObjective = self.eval(mutation)
                 if mutationObjective < bestValue:
                     bestMutation, bestValue = mutation, mutationObjective
+                    self.bestRoute, self.bestDistance = bestMutation, bestValue
             if bestValue < self.bees[e][1]:
                 self.bees[e] = (bestMutation, bestValue)
         return
@@ -89,6 +90,7 @@ class Bee:
                 mutationObjective = self.eval(mutation)
                 if mutationObjective < bestValue:
                     bestMutation, bestValue = mutation, mutationObjective
+                    self.bestRoute, self.bestDistance = bestMutation, bestValue
             if bestValue < self.bees[b][1]:
                 self.bees[b] = (bestMutation, bestValue)
         return
@@ -151,6 +153,8 @@ class BeeTSP(Bee):
         self.termination_distances = list()
         self.fig, self.axs = plt.subplots(1, 2)
         self.execution_time = 0
+        self.bestRoute = []
+        self.bestDistance = 0
 
         init_data = pd.DataFrame({
             "Cities": [self.routeLen],  # Number of cities
