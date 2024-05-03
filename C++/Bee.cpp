@@ -27,35 +27,55 @@ Bee::Bee(int ns, int nb, int ne, int nrb, int nre, int iterations, TSP problem)
 void Bee::solve() {
     auto start = std::chrono::high_resolution_clock::now();
     initialRandSolution();
+    double lastBestValue = std::numeric_limits<double>::infinity();
+    int noImprovementCounter = 0;
+    int noImprovementThreshold = 100;  // Set this to the number of iterations without improvement you tolerate
+    bool improvementThresholdReached = false;
+
     for (int t = 0; t < iterations; ++t) {
         eliteSearch();
         bestSearch();
         globalFill();
         calculateBests();
-        if (t % 250 == 0) {
-            double best_objective1 = bees[0].back();
-            std::cout << "Iteration: " << t << "; Distance: " << best_objective1 << "\n";
-            // print time
-            std::cout << "Time: " << std::chrono::duration_cast<std::chrono::seconds>(
-                    std::chrono::high_resolution_clock::now() - start).count() << "s" << std::endl;
+
+        // Check for improvement
+        if (bees[0].back() < lastBestValue) {
+            lastBestValue = bees[0].back();
+            noImprovementCounter = 0;
+        } else {
+            noImprovementCounter++;
         }
 
+        // Check if we have reached the no improvement threshold
+        if (noImprovementCounter >= noImprovementThreshold) {
+            std::cout << "Terminating after " << noImprovementThreshold << " iterations without improvement." << std::endl;
+            improvementThresholdReached = true;
+            break;
+        }
     }
+
     std::vector<double> best_solution = bees[0];
     best_solution.pop_back();
+    if (!improvementThresholdReached) {
+        std::cout << "Terminating after " << iterations << " iterations." << std::endl;
+    }
     std::cout << "\n----------------------\n";
 
-    std::cout << "Best solution: ";
+    std::cout << "Route: ";
     for (auto &val: best_solution) {
         std::cout << val << " ";
     }
-    std::cout << "\nBest objective: " << bees[0].back() << std::endl;
+    std::cout << "\nObjective Value: " << bees[0].back() << std::endl;
 
     auto end = std::chrono::high_resolution_clock::now();
-    // convert time to seconds
-    std::cout << "Total Time: " << std::chrono::duration_cast<std::chrono::seconds>(end - start).count() << "s"
-              << std::endl;
+    auto duration = end - start;
+    auto duration_sec = std::chrono::duration_cast<std::chrono::seconds>(duration).count();
+    auto duration_ms = std::chrono::duration_cast<std::chrono::milliseconds>(duration).count() - 1000 * duration_sec;
+
+    // Print total time in seconds and milliseconds
+    std::cout << "Total Time: " << duration_sec << "s " << duration_ms << "ms" << std::endl;
     std::cout << "\n========FINISHED========\n";
+    
 }
 
 void Bee::initialRandSolution() {
