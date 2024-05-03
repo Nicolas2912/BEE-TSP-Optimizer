@@ -11,6 +11,7 @@
       <change beforePath="$PROJECT_DIR$/BeeTSP.m" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/beetsp.py" beforeDir="false" afterPath="$PROJECT_DIR$/beetsp.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.m" beforeDir="false" afterPath="$PROJECT_DIR$/main.m" afterDir="false" />
+
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -52,9 +53,11 @@
     &quot;Python.scratch.executor&quot;: &quot;Run&quot;,
     &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
     &quot;git-widget-placeholder&quot;: &quot;main&quot;,
     &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/Anwender/Desktop/Nicolas/Dokumente/FH Bielefeld/Optimierung und Simulation/2. Semester/SimulationOptischerSysteme/AI-Weather-Classification&quot;,
+
+    &quot;last_opened_file_path&quot;: &quot;/Users/nicolasschneider/MeineDokumente/FH_Bielefeld/Optimierung_und_Simulation/2. Semester/BionischeMethodenderOptimierung/BEE-TSP-Optimizer&quot;,
     &quot;project.structure.last.edited&quot;: &quot;Project&quot;,
     &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
     &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
@@ -86,7 +89,6 @@
     </configuration>
     <configuration name="beetsp" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="BEE-TSP-Optimizer" />
-      <option name="ENV_FILES" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs>
@@ -108,7 +110,6 @@
     </configuration>
     <configuration name="scratch" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="BEE-TSP-Optimizer" />
-      <option name="ENV_FILES" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs>
