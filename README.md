@@ -71,10 +71,16 @@ In order to run the C++ implementation just follow these steps:
     g++ main.cpp TSP.cpp Bee.cpp -o main
     ```
    
-2. Run the compiled file:
+2. Run the compiled file (with parameters):
 
     ```bash
-    ./main
+    main.exe 75 55 15 25 25 50 100
+    ```
+
+3. Run the compiled file (with default parameters):
+
+    ```bash
+    main.exe
     ```
 
 # Acknowledgements
