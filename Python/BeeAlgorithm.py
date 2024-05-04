@@ -46,8 +46,22 @@ logger.info("Bee Algorithm for TSP")
 
 
 class Bee:
+    """
+    A class to implement the Bee Algorithm for optimization problems such as the Traveling Salesman Problem (TSP).
+    """
 
     def __init__(self, ns, nb, ne, nrb, nre, iterations):
+        """
+        Initializes the Bee object with the specified number of bees and iterations.
+
+        Args:
+            ns (int): Number of scout bees.
+            nb (int): Number of onlooker bees.
+            ne (int): Number of elite bees.
+            nrb (int): Number of recruited bees for elite search.
+            nre (int): Number of recruited bees for the best search.
+            iterations (int): Number of iterations the algorithm should perform.
+        """
         self.ns = ns
         self.nb = nb
         self.ne = ne
@@ -57,6 +71,12 @@ class Bee:
         self.bees = []
 
     def solve(self, visualize=False):
+        """
+        Executes the bee algorithm to optimize the problem solution across multiple iterations.
+
+        Args:
+            visualize (bool): If True, visualizes the results after each iteration.
+        """
         self.initialRandSolution()
         for t in range(self.iterations):
             self.eliteSearch()
@@ -68,6 +88,9 @@ class Bee:
         return
 
     def eliteSearch(self):
+        """
+        Conducts the search process for the elite bees to find better solutions.
+        """
         for e in range(self.ne):
             bestValue = float("inf")
             bestMutation = []
@@ -82,6 +105,9 @@ class Bee:
         return
 
     def bestSearch(self):
+        """
+        Conducts the search process for the best bees that are not elite to find better solutions.
+        """
         for b in range(self.ne + 1, self.nb + 1):
             bestValue = float("inf")
             bestMutation = []
@@ -96,11 +122,17 @@ class Bee:
         return
 
     def globalFill(self):
+        """
+        Fills the bee population with new random solutions, replacing less optimal solutions.
+        """
         for g in range(self.nb + 1, len(self.bees)):
             self.bees[g] = self.random()
         return
 
     def initialRandSolution(self):
+        """
+       Initializes the bee population with random solutions.
+       """
         for iter in range(self.ns):
             x = self.random()
             y = self.eval(x)
@@ -109,22 +141,55 @@ class Bee:
         return
 
     def calculateBests(self):
+        """
+        Updates the list of bees to keep only the best solutions found so far.
+        """
         sorted(self.bees, key=lambda bee: bee[1])
 
     def mutate(self, instance):
+        """
+        Mutates a given solution to potentially find a better one.
+
+        Args:
+            instance (list): The solution to mutate.
+
+        Returns:
+            list: A new solution derived from the original by mutation.
+        """
         pass
 
     def eval(self, instance):
+        """
+        Evaluates a solution to determine its quality.
+
+        Args:
+            instance (list): The solution to evaluate.
+
+        Returns:
+            float: The evaluated score of the solution.
+        """
         return 0
 
     def random(self):
+        """
+       Generates a random solution.
+
+       Returns:
+           list: A randomly generated solution.
+       """
         pass
 
     def visualize(self):
+        """
+        Visualizes the state of the bee population and the best solution found.
+        """
         pass
 
 
 class BeeTSP(Bee):
+    """
+    A class to implement the Bee Algorithm for the Traveling Salesman Problem (TSP).
+    """
 
     def __init__(self, inp, ns=75, nb=55, ne=15, nrb=25, nre=25, iterations=100):
         """
@@ -169,14 +234,6 @@ class BeeTSP(Bee):
         table = tabulate.tabulate(init_data, headers='keys', tablefmt='pretty')
         logger.info(f"Parameters:\n{table}")
         print("\n")
-
-        # print(init_data)
-
-        # logger.info(f"Parameters:", data=init_data.to_dict(orient='records'))
-
-        # logger.info(f"Bee TSP initialized with {self.routeLen} cities; {ns} scout bees, {nb} onlooker bees, "
-        #             f"{ne} elite bees, {nrb} onlooker bees for elite search, {nre} elite bees for elite search, "
-        #             f"{iterations} iterations")
 
     def eval(self, instance: List[int]) -> float:
         """
@@ -374,4 +431,4 @@ if __name__ == "__main__":
     print("-" * 100)
     print(f"Time taken: {round(time.time() - start, 3)} seconds")
     logger.info(f"Execution completed in {round(tsp.execution_time, 3)} seconds")
-    print(input("Press Enter to exit"))
+    print("========{FINISHED}========")
