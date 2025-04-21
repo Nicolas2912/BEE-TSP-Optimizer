@@ -87,6 +87,6 @@ In order to run the C++ implementation just follow these steps:
 
 * Inspired by the natural foraging behavior of honeybees.
 * Thanks to the contributors of the Python packages used in this project.
-* And a special thanks to Linus Langenkamp for helping me with this little project!
+* And a special thanks to @linuslangenkamp for helping me with this little project!
 
 
